@@ -1,5 +1,6 @@
 /*
 *   Ejercicio 6. Encontrar el latch oculto.
+*   alu_bad.v - version con latch oculto.
 */
 
 `timescale 1ns / 1ps

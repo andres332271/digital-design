@@ -1,23 +1,9 @@
 `timescale 1ns / 1ps
 
 module tb_alu;
-  reg clk;
-  reg rst_n;
-  wire [7:0] a, b, y;
-  wire [1:0] op;
-
-
-  // Clock 100 MHz
-  initial clk = 0;
-  always #5 clk = ~clk;
-
-  test_alu signals (
-      .clk(clk),
-      .rst_n(rst_n),
-      .a(a),
-      .b(b),
-      .op(op)
-  );
+  reg [7:0] a, b;
+  reg  [1:0] op;
+  wire [7:0] y;
 
   alu_bad alu1 (
       .a (a),
@@ -25,14 +11,85 @@ module tb_alu;
       .op(op),
       .y (y)
   );
+
   initial begin
     $dumpfile("tb_alu.vcd");
     $dumpvars(0, tb_alu);
 
-    rst_n = 0;
-    #12 rst_n = 1;  // Suelto reset entre flancos
+    a  = 8'd15;
+    b  = 8'd4;
 
-    repeat (8) @(posedge clk);
+    // 00 -> 01
+    op = 2'b00;
+    #10;
+    op = 2'b01;
+    #10;
+
+    // 00 -> 10
+    op = 2'b00;
+    #10;
+    op = 2'b10;
+    #10;
+
+    // 00 -> 11
+    op = 2'b00;
+    #10;
+    op = 2'b11;
+    #10;
+
+    // 01 -> 00
+    op = 2'b01;
+    #10;
+    op = 2'b00;
+    #10;
+
+    // 01 -> 10
+    op = 2'b01;
+    #10;
+    op = 2'b10;
+    #10;
+
+    // 01 -> 11
+    op = 2'b01;
+    #10;
+    op = 2'b11;
+    #10;
+
+    // 10 -> 00
+    op = 2'b10;
+    #10;
+    op = 2'b00;
+    #10;
+
+    // 10 -> 01
+    op = 2'b10;
+    #10;
+    op = 2'b01;
+    #10;
+
+    // 10 -> 11
+    op = 2'b10;
+    #10;
+    op = 2'b11;
+    #10;
+
+    // 11 -> 00
+    op = 2'b11;
+    #10;
+    op = 2'b00;
+    #10;
+
+    // 11 -> 01
+    op = 2'b11;
+    #10;
+    op = 2'b01;
+    #10;
+
+    // 11 -> 10
+    op = 2'b11;
+    #10;
+    op = 2'b10;
+    #10;
 
     $finish;
   end
