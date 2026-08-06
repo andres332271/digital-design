@@ -33,3 +33,7 @@ La interfaz usa handshake AXI-Stream:
 - `tb_pipeline` con golden model en software
 - Probar con stall (ready_in alternando 1/0)
 - Reportar throughput observado vs teórico
+
+## Tip:
+
+Cada etapa tiene su propio valid registrado. ready_out = ready_in (la lógica de back-pressure se propaga). Cuando ready_in=0, congelar todos los FFs con un CE común.

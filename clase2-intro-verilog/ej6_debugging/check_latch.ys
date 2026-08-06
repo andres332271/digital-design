@@ -1,6 +1,18 @@
-read_verilog -sv alu_bad.v
-hierarchy -check -top alu_bad
+# Nota: alu_bad.v no se incluye acá porque yosys aborta el script con ERROR
+# apenas PROC_DLATCH detecta un latch en un bloque always_comb (ver report.md
+# para esa demostración, corrida por separado con el mismo comando de abajo
+# apuntando a alu_bad.v). Este script solo verifica que los fixes NO infieran
+# latch.
+
+read_verilog -sv alu_fix1.v
+hierarchy -check -top alu_fix1
 proc;
 opt;
+select -assert-none t:$dlatch t:$dlatchsr
 
+design -reset
+read_verilog -sv alu_fix2.v
+hierarchy -check -top alu_fix2
+proc;
+opt;
 select -assert-none t:$dlatch t:$dlatchsr

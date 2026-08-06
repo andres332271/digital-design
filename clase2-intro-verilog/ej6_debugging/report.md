@@ -6,11 +6,16 @@ El módulo definido en `alu_bad.v` tiene un bug silencioso: no se define explíc
 
 ## Implementación del *Test Bench*
 
-El test consiste en asignar valores fijos a los vectores de entrada `a` y `b`, y probar las 12 transiciones de `op`. Los resultados se logean a un archivo .csv. El resultado esperable es que el valor de `y` solo dependa del valor actual de `op`, independientemente del valor anterior. Si hay un latch esto no ocurre.
+`tb_alu.v` tiene dos fases. Fase 1: valores fijos en `a` y `b`, probando las 12 transiciones de `op`. Los resultados se logean a un archivo .csv. El resultado esperable es que el valor de `y` solo dependa del valor actual de `op`, independientemente del valor anterior; si hay un latch esto no ocurre. Fase 2: barrido de los 256 valores posibles de `a` (8 bits) para cada uno de los 3 op-codes definidos (`00`,`01`,`10`), comparando `y_fix1` y `y_fix2` contra un resultado esperado calculado en el propio TB — esto verifica la equivalencia funcional de ambos fixes de forma automática (contador de errores + PASS/FAIL), en vez de depender solo de la inspección visual del CSV.
 
 ## Fix
 
-El error en `alu_bad.v` es no definir explícitamente la operación para op = `2b11`. Esto se solucionó asignando el valor 0 al resultado de la operación. En fix1 se usó un caso `default`, mientras que en `fix2` se utilizó `unique case (op)`, junto con el caso explícito `2'b11`.
+El error en `alu_bad.v` es no definir explícitamente la operación para op = `2b11`. Se proponen dos fixes, ambos dejando `y=0` para ese caso:
+
+- **fix1 — caso `default`**: se agrega una rama `default: y = 8'd0;` al `case`, cubriendo cualquier valor de `op` no listado explícitamente.
+- **fix2 — pre-asignación**: se asigna `y = 8'sd0;` *antes* de entrar al `case`, que solo lista las 3 operaciones definidas. Como toda ejecución pasa primero por la pre-asignación, cualquier rama no cubierta por el `case` conserva ese valor por defecto en vez de "recordar" el valor anterior de `y`.
+
+Ambas técnicas garantizan que `y` quede asignado en todo camino de ejecución, que es la regla de oro para evitar la inferencia de latch en `always_comb`.
 
 ## Resultados
 
@@ -34,10 +39,37 @@ time,   op_from,  op_to,  y_bad,  y_fix1, y_fix2
 
 Analizando esto notamos que los resultados son consistentes en grupos de 3 filas (mismo valor de `op_to`) para `y_fix1` y `y_fix2`, mientras que no lo son para `y_bad`, lo que evidencia el latch implícito.
 
-Alternativamente, utilizando el script de yosys nos arroja un error (ver última línea de output).
+La fase 2 del TB (barrido de los 256 valores de `a` para cada op definida) confirma esto de forma automática:
+
+```
+----------------------------------------
+Barrido de 256 vectores completo. Errores: 0
+RESULTADO: PASS
+----------------------------------------
+```
+
+0 errores en 768 vectores (256 valores de `a` × 3 op-codes): `y_fix1` y `y_fix2` coinciden entre sí y con el valor esperado en todos los casos, confirmando que ambos fixes son funcionalmente equivalentes.
+
+## Verificación con yosys
+
+`check_latch.ys` corre `alu_fix1.v` y `alu_fix2.v` y usa `select -assert-none t:$dlatch t:$dlatchsr` sobre cada uno — el script termina sin error, confirmando que ninguno de los dos fixes infiere latch:
 
 ```
 $ yosys check_latch.ys
+...
+3.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\alu_fix1.\y' from process `\alu_fix1.$proc$alu_fix1.v:15$1'.
+...
+7.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\alu_fix2.\y' from process `\alu_fix2.$proc$alu_fix2.v:16$10'.
+...
+End of script. Logfile hash: ...
+```
+
+`alu_bad.v` no se incluye en ese mismo script: en yosys, `PROC_DLATCH` levanta un `ERROR` (no un warning) apenas detecta un latch dentro de un bloque `always_comb`, y ese error aborta el resto del script — no se podría seguir hasta chequear fix1/fix2 en la misma corrida. Por eso la demostración del bug en `alu_bad.v` se corre por separado, apuntando el mismo pipeline (`read_verilog -sv`, `hierarchy`, `proc`, `opt`) a ese archivo:
+
+```
+$ yosys -p "read_verilog -sv alu_bad.v; hierarchy -check -top alu_bad; proc; opt"
 
  /----------------------------------------------------------------------------\
  |  yosys -- Yosys Open SYnthesis Suite                                       |
@@ -46,8 +78,6 @@ $ yosys check_latch.ys
  \----------------------------------------------------------------------------/
  Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-
 pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
-
--- Executing script file `check_latch.ys' --
 
 1. Executing Verilog-2005 frontend: alu_bad.v
 Parsing SystemVerilog input from `alu_bad.v' to AST representation.

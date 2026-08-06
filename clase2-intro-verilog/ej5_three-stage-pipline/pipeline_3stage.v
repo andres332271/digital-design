@@ -21,7 +21,7 @@ module pipeline_3stage (
     assign ready_out = ready_in;
 
     // Registros de etapa 1 (suma) y etapa 2 (producto)
-    reg signed [15:0] d1, v1_data; // d1 = x+A
+    reg signed [15:0] d1;          // d1 = x+A
     reg                v1;
     reg signed [15:0] d2;          // d2 = d1*B
     reg                v2;

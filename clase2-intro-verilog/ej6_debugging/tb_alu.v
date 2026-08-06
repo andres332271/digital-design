@@ -9,8 +9,10 @@ module tb_alu;
   parameter integer signed B_VALUE = 4;
   parameter string CSV_FILENAME = "tb_alu_results.csv";
 
-  integer i, j;
+  integer i, j, k;
   integer csv_file;
+  integer errors;
+  reg signed [REG_WIDTH-1:0] expected;
 
   reg signed [REG_WIDTH-1:0] a, b;
   reg [OP_WIDTH-1:0] op;
@@ -85,6 +87,38 @@ module tb_alu;
     end
     $fclose(csv_file);
     $display("Barrido completo, resultados en %s", CSV_FILENAME);
+
+    // FASE 2: barrido de 256 vectores de 'a' (rango completo de 8 bits)
+    // para cada op definida, comparando fix1 y fix2 contra el resultado
+    // esperado calculado en el propio TB (verifica equivalencia funcional).
+    errors = 0;
+    b = B_VALUE;
+    for (k = 0; k < (1 << OP_WIDTH) - 1; k = k + 1) begin // op = 00,01,10
+      for (i = 0; i < 256; i = i + 1) begin
+        a = i;
+        apply_op(states[k]);
+        case (states[k])
+          2'b00: expected = a + b;
+          2'b01: expected = a - b;
+          2'b10: expected = a & b;
+          default: expected = 8'sd0;
+        endcase
+        if (y_alu_fix1 !== expected || y_alu_fix2 !== expected) begin
+          $display("ERROR: op=%b a=%0d b=%0d fix1=%0d fix2=%0d esperado=%0d",
+                    states[k], a, b, y_alu_fix1, y_alu_fix2, expected);
+          errors = errors + 1;
+        end
+      end
+    end
+
+    $display("----------------------------------------");
+    $display("Barrido de 256 vectores completo. Errores: %0d", errors);
+    if (errors == 0)
+      $display("RESULTADO: PASS");
+    else
+      $display("RESULTADO: FAIL");
+    $display("----------------------------------------");
+
     $finish;
   end
 endmodule
