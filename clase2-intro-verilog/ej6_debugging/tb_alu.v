@@ -1,96 +1,90 @@
 `timescale 1ns / 1ps
 
 module tb_alu;
-  reg [7:0] a, b;
-  reg  [1:0] op;
-  wire [7:0] y;
+  parameter integer CLK_PERIOD = 10;
+  parameter integer REG_WIDTH = 8;
+  parameter integer OP_WIDTH = 2;
 
-  alu_bad alu1 (
+  parameter integer A_VALUE = 15;
+  parameter integer B_VALUE = 4;
+  parameter string CSV_FILENAME = "tb_alu_results.csv";
+
+  integer i, j;
+  integer csv_file;
+
+  reg [REG_WIDTH-1:0] a, b;
+  reg [OP_WIDTH-1:0] op;
+  reg [OP_WIDTH-1:0] states[1<<OP_WIDTH];
+  wire [REG_WIDTH-1:0] y_alu_bad, y_alu_fix1, y_alu_fix2;
+
+  // Modulos instanciados
+  alu_bad alu_bad (
       .a (a),
       .b (b),
       .op(op),
-      .y (y)
+      .y (y_alu_bad)
   );
 
+  alu_fix1 alu_fix1 (
+      .a (a),
+      .b (b),
+      .op(op),
+      .y (y_alu_fix1)
+  );
+
+  alu_fix2 alu_fix2 (
+      .a (a),
+      .b (b),
+      .op(op),
+      .y (y_alu_fix2)
+  );
+
+  // Defino tarea simple, combina dos comandos en 1.
+  task automatic apply_op(reg [OP_WIDTH-1:0] state);
+    begin
+      op = state;
+      #CLK_PERIOD;
+    end
+  endtask
+
+  // Inicia el TB
   initial begin
     $dumpfile("tb_alu.vcd");
-    $dumpvars(0, tb_alu);
+    $dumpvars(0, op, y_alu_bad, y_alu_fix1, y_alu_fix2);
 
-    a  = 8'd15;
-    b  = 8'd4;
+    // Loegea a un archivo .csv
+    csv_file = $fopen(CSV_FILENAME, "w");
+    if (csv_file == 0) begin
+      $display("ERROR: no se pudo abrir el archivo CSV");
+      $finish;
+    end
+    $fwrite(csv_file, "time, op_from, op_to, y_bad, y_fix1, y_fix2\n");
 
-    // 00 -> 01
-    op = 2'b00;
-    #10;
-    op = 2'b01;
-    #10;
+    // Asigna valores iniciales
+    a = A_VALUE;
+    b = B_VALUE;
 
-    // 00 -> 10
-    op = 2'b00;
-    #10;
-    op = 2'b10;
-    #10;
+    for (i = 0; i < (1 << OP_WIDTH); i++) begin
+      states[i] = i;
+    end
 
-    // 00 -> 11
-    op = 2'b00;
-    #10;
-    op = 2'b11;
-    #10;
+    // Encabezado del .csv
+    $display("t, op, alu_bad, alu_fix1, alu_fix2");
 
-    // 01 -> 00
-    op = 2'b01;
-    #10;
-    op = 2'b00;
-    #10;
+    // Bucle principal, calcula las transiciones hacia op[i] y loguea
+    for (i = 0; i < (1 << OP_WIDTH); i++) begin
+      for (j = 0; j < (1 << OP_WIDTH); j++) begin
+        if (i != j) begin
+          apply_op(states[j]);
+          apply_op(states[i]);
 
-    // 01 -> 10
-    op = 2'b01;
-    #10;
-    op = 2'b10;
-    #10;
-
-    // 01 -> 11
-    op = 2'b01;
-    #10;
-    op = 2'b11;
-    #10;
-
-    // 10 -> 00
-    op = 2'b10;
-    #10;
-    op = 2'b00;
-    #10;
-
-    // 10 -> 01
-    op = 2'b10;
-    #10;
-    op = 2'b01;
-    #10;
-
-    // 10 -> 11
-    op = 2'b10;
-    #10;
-    op = 2'b11;
-    #10;
-
-    // 11 -> 00
-    op = 2'b11;
-    #10;
-    op = 2'b00;
-    #10;
-
-    // 11 -> 01
-    op = 2'b11;
-    #10;
-    op = 2'b01;
-    #10;
-
-    // 11 -> 10
-    op = 2'b11;
-    #10;
-    op = 2'b10;
-    #10;
-
+          $fwrite(csv_file, "%0t,%b,%b,%0d,%0d,%0d\n", $time, states[j], states[i], y_alu_bad,
+                  y_alu_fix1, y_alu_fix2);
+        end
+      end
+    end
+    $fclose(csv_file);
+    $display("Barrido completo, resultados en %s", CSV_FILENAME);
     $finish;
   end
 endmodule
