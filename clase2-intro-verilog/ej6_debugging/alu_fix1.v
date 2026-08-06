@@ -6,10 +6,10 @@
 `timescale 1ns / 1ps
 
 module alu_fix1 (
-    input  logic [7:0] a,
-    input  logic [7:0] b,
-    input  logic [1:0] op,
-    output reg   [7:0] y
+    input logic signed [7:0] a,
+    input logic signed [7:0] b,
+    input logic [1:0] op,
+    output reg signed [7:0] y
 );
 
   always_comb begin

@@ -5,17 +5,17 @@ module tb_alu;
   parameter integer REG_WIDTH = 8;
   parameter integer OP_WIDTH = 2;
 
-  parameter integer A_VALUE = 15;
-  parameter integer B_VALUE = 4;
+  parameter integer signed A_VALUE = 15;
+  parameter integer signed B_VALUE = 4;
   parameter string CSV_FILENAME = "tb_alu_results.csv";
 
   integer i, j;
   integer csv_file;
 
-  reg [REG_WIDTH-1:0] a, b;
+  reg signed [REG_WIDTH-1:0] a, b;
   reg [OP_WIDTH-1:0] op;
   reg [OP_WIDTH-1:0] states[1<<OP_WIDTH];
-  wire [REG_WIDTH-1:0] y_alu_bad, y_alu_fix1, y_alu_fix2;
+  wire signed [REG_WIDTH-1:0] y_alu_bad, y_alu_fix1, y_alu_fix2;
 
   // Modulos instanciados
   alu_bad alu_bad (
