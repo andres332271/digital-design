@@ -2,3 +2,5 @@
 *.out
 *.vcd
 *.csv
+synth.log
+sim.out
