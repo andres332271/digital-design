@@ -35,7 +35,7 @@ def ieee754_simple(x, verbose=True):
 
     # Calculos
     if x == 0.0:
-        sign, exponent_biased, frac_part = 0, 0, 0.0
+        sign, exponent, exponent_biased, frac_part = 0, -127, 0, 0.0
     else:
         sign = int(x < 0)                       # bit de signo
         x_abs = abs(x)

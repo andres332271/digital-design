@@ -1,6 +1,8 @@
+*/latex_report/
 */consignas/
 *.out
 *.vcd
 *.csv
+*.hex
 synth.log
 sim.out

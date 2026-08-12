@@ -108,6 +108,8 @@ El mismo algoritmo sirve para obtener la representación signada (complemento a 
 
 En punto fijo el error de cuantización es a lo sumo 1 LSB. Esto es $2^{-3}=0.125$ para S(8, 3). Esto es un error absoluto, pero el error relativo es variable y depende del valor representado. En punto flotante en cambio, el error de cuantización es siempre relativo (es un error de a lo sumo 1 LSB de la mantisa). Dado que la mantisa ocupa 23 bits en simple precisión, el error relativo es $2^{-23}=1.19 10^{-7}$.
 
+Para x = 9.625 en particular el error real es 0 en ambas representaciones, no solo acotado por la cota de peor caso de arriba. La parte fraccionaria (0.625 = 0.101 en binario) necesita exactamente 3 bits, que es justo lo que ofrece S(8, 3): reconstruyendo desde '01001101' se obtiene $8+1+0.5+0.125=9.625$, sin resto. En IEEE754 pasa lo mismo: la mantisa normalizada solo necesita 6 bits (`001101`) de los 23 disponibles, el resto queda en cero por padding y no se descarta nada. Con un x que no cayera exacto en la grilla de 3 bits (por ejemplo 9.6) sí aparecería el error de hasta 1 LSB descripto arriba.
+
 ## Script de python
 
 El script ej1.py contiene funciones que automatizan tanto la obtención de la representación en punto fijo como la de punto flotante. Es más, la función que obtiene punto flotante hace uso de la de punto fijo para obtener mantisa y exponente.
