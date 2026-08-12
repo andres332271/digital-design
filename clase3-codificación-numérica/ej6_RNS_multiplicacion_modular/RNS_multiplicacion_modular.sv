@@ -1,4 +1,4 @@
-module 
+module RNS_multiplicacion_modular
 
 //parametros
 #()
