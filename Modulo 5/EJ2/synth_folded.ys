@@ -1,0 +1,5 @@
+# El modulo folded reutiliza el mismo nombre de FSM que EJ3, por eso se
+# sintetiza desde sus archivos propios.
+read_verilog -sv ../EJ1/ROM.sv ../EJ1/cordic_fsm.sv ../EJ1/cordic.sv
+synth_xilinx -family xc7 -top cordic
+stat
