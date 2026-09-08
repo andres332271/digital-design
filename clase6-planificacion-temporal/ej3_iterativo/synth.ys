@@ -1,0 +1,4 @@
+# Mapeo logico XC7; no incluye placement/routing ni timing sign-off.
+read_verilog -sv fir_iter.sv control_fsm.sv
+synth_xilinx -family xc7 -top fir_iter
+stat
