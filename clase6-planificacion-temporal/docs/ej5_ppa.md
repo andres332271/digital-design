@@ -156,3 +156,27 @@ el MAC encadena mult+add sin registro intermedio). Si ej3 pipelineara internamen
 por muestra — quedaría más cerca en fmax pero seguiría muy por detrás en throughput, porque el
 cuello de botella real es la reutilización de 1 solo DSP para 4 operaciones, no el período de
 clock.
+
+## Contraste con fuentes externas
+
+Dos afirmaciones de metodología de este informe se contrastaron contra material externo:
+
+1. **El DSP48E1 no cuesta LUTs porque es silicio dedicado, no lógica programable.** AMD UG1387
+   no tiene la frase literal "0 LUTs" pero confirma la idea de fondo (*"Xilinx recommends
+   inferring DSP resources"*, describe los DSP48 como *"highly pipelined blocks"*). Una fuente
+   más directa (glosario de FPGARelated) sí lo dice explícito: *"Unlike soft logic built from
+   lookup tables (LUTs), DSP slices offer […] dramatically lower LUT consumption"* y *"a
+   dedicated hard-logic block […] in a single fixed silicon structure"*. Es exactamente el
+   argumento de por qué la brecha de área ej3-vs-ej4 es menor de lo que da un estimado ASIC por
+   celdas.
+2. **`synth_xilinx` es mapeo lógico puro, sin P&R ni timing.** En vez de la doc web de Yosys
+   (404 en la URL vieja), la fuente más autoritativa es la propia herramienta instalada:
+   `yosys -p "help synth_xilinx"` lista los pasos internos — `map_memory` → `map_ffram` →
+   `fine` → `map_cells` → `map_ffs` → `map_luts` (`abc -luts …`) → `finalize` → `check`. **No
+   hay ningún paso `place`, `route` ni análisis de timing con retardos físicos** en toda la
+   lista. Confirma, desde el binario que generó los `yosys.log`, que el fmax en `tu` de este
+   informe sigue siendo el analítico y no sale de la síntesis.
+
+**Conclusión**: ambas afirmaciones se sostienen — una con una fuente externa directa (LUT
+consumption del DSP48), la otra con la fuente más autoritativa posible para esa pregunta (el
+propio `yosys` instalado).

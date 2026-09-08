@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Recomputa las cuentas en `tu` de ej5_ppa/report.md a partir de los datos
+"""Recomputa las cuentas en `tu` de docs/ej5_ppa.md a partir de los datos
 medidos en simulacion (no re-deriva los datos medidos en si -- esos vienen de
-./run.sh, ver ref/review-plan.md punto 3), solo la aritmetica que combina
-ciclos medidos x T_clk analitico.
+./run.sh), solo la aritmetica que combina ciclos medidos x T_clk analitico.
 """
 from fractions import Fraction
 

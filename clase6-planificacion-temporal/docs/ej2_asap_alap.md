@@ -99,3 +99,32 @@ RESULTADO: OK - coincide exactamente con la tabla de docs/ej2_asap_alap.md
 
 Corre con `cd ej2_asap_alap && python3 verify_asap_alap.py` — coincide nodo por nodo con las
 tablas de arriba.
+
+## Contraste con fuentes externas
+
+Fuente primaria leída completa: *"Scheduling Algorithms For High-Level Synthesis"* (TU Delft
+OCW, §2.2, §4.1, §4.2, §5.1) — `WebFetch` bajó el PDF y se leyó directo con `Read`, no un
+*snippet*.
+
+1. **ASAP** (p.6): *"starts with the highest nodes (that have no parents) […] assigns time
+   steps in increasing order […] a successor node can execute only after its parent has
+   executed […] it schedules in least number of control steps"*. Coincide con la tabla ASAP de
+   arriba (cada nodo en el primer ciclo en que sus entradas están listas, latencia 3).
+2. **ALAP** (p.6): *"works exactly in the same way as the ASAP algorithm except that it starts
+   at the bottom of the DFG and proceeds upwards […] gives the slowest possible schedule"*.
+   Coincide con el recorrido hacia atrás desde `a3` fijado en el último ciclo.
+3. **Modelo de 1 ciclo por operación** (p.3, §2.2): *"each operation is executed in one time
+   step"*. Confirma textualmente que el grano unitario por operador es el estándar de HLS, no
+   una simplificación propia de este informe.
+4. **Movilidad**: el paper define el *mobility range* como `[Eₖ, Lₖ]` (valores ASAP y ALAP) y
+   afirma *"smaller the mobility higher the urgency for scheduling"*. No aparece la ecuación
+   literal `movilidad = ALAP − ASAP` (usa el rango, equivalente) ni el enunciado
+   "movilidad 0 ⇔ camino crítico" — este último es corolario matemático directo de las
+   definiciones de ASAP/ALAP que sí están confirmadas.
+
+Parhi (`ref/pahri-slides/chap2.pdf`, `chap4.pdf`) **no** cubre ASAP/ALAP/scheduling (está en
+otro capítulo del libro que no se agregó), así que el contraste de ej2 se apoya enteramente en
+el paper de TU Delft.
+
+**Conclusión**: 3 de 4 afirmaciones confirmadas *textualmente* contra la fuente primaria
+completa; la cuarta (movilidad 0 ⇔ crítico) es corolario directo, no necesita cita aparte.

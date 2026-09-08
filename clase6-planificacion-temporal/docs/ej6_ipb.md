@@ -117,3 +117,41 @@ exacta (`fractions.Fraction`, para que ningún redondeo de punto flotante pueda 
 discrepancia real), la recursión original contra la fórmula desenrollada sobre 200 pares
 `(a,b)` aleatorios × 50 muestras cada uno — `0 discrepancias` en los 10000 puntos comparados.
 La identidad algebraica de arriba no es una aproximación.
+
+## Contraste con fuentes externas
+
+Fuente primaria: Parhi, *VLSI Digital Signal Processing Systems*
+(`ref/pahri-slides/chap2.pdf`, 25 páginas, el capítulo "Iteration Bound" entero, leído
+completo; `chap4.pdf` para K-slow). Shannon está en otro capítulo del libro que no se agregó.
+
+1. **`IPB = max(T_lazo_i / D_lazo_i)`** — confirmado exacto, `chap2.pdf` p.13-14: *"Loop: a
+   directed path that begins and ends at the same node"*, *"Loop bound of the j-th loop:
+   defined as Tj/Wj, where Tj is the loop computation time & Wj is the number of delays in the
+   loop"*, *"Critical Loop: the loop with the maximum loop bound"*, `T∞ = max{Tj/Wj}`.
+   Coincide término a término con la tabla de arriba.
+2. **El ejemplo de look-ahead es casi literalmente un ejemplo del libro** — `chap2.pdf` p.13,
+   Example 2: para `y(n) = a·y(n-2) + x(n)` (lazo de 2 registros) da `T_loopbound = (Tm+Ta)/2`,
+   la mitad del lazo de 1 registro. Mismo patrón que `IPB_nuevo = T_lazo/2 = 1.5 tu`.
+   **Matiz**: Parhi lo presenta como "un lazo con más registros" en general, no como la
+   transformación look-ahead de una recursión de 1er orden — el encuadre "técnica de
+   look-ahead" es una capa de interpretación propia sobre un ejemplo que el libro no nombra así.
+3. **Retiming no baja el IPB por sí solo** — `chap4.pdf` p.4: *"Retiming does not alter the
+   iteration bound in a DFG as the number of delays in a cycle does not change"*. Es la prueba
+   formal de por qué el lazo del IIR necesita Shannon / C-Slow / look-ahead y no alcanza con
+   mover registros.
+4. **C-Slow válido con 1 solo stream** — `chap4.pdf` p.8-9 (K-slow / 2-slow): reemplazar 1
+   registro por 2 calcula la misma secuencia con 1 stream, solo que el hardware queda al 50% y
+   el throughput real no mejora. Esto motivó corregir una versión anterior de la sección
+   C-Slow de este informe, que decía "solo funciona si hay C streams" cuando lo correcto es
+   "solo *mejora el throughput* si"; la sección de arriba ya refleja la corrección.
+5. **Look-ahead como técnica separada de Shannon / C-Slow** — sin fuente primaria en los dos
+   capítulos agregados; apoyado en papers IEEE de look-ahead (*"three mainstream Look-Ahead
+   techniques: Clustered, Scattered, Distributed"*).
+6. **Shannon + retiming en EDA real** — sin fuente primaria; snippet de Cong et al.
+   (*"designers usually attack such cycles by manually combining Shannon decomposition with
+   retiming"*).
+
+**Conclusión**: 3 de 6 puntos confirmados contra el texto primario completo de Parhi (IPB, el
+ejemplo de look-ahead, retiming no baja el IPB); 1 punto corrigió un error real de redacción
+(C-Slow); 2 puntos (Shannon, look-ahead como técnica separada) siguen en fuentes secundarias
+porque Shannon no está en los capítulos disponibles.

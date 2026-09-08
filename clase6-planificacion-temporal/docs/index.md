@@ -31,10 +31,11 @@ A diferencia de clases anteriores del curso, acá **sí conviene bajar a RTL rea
 dos puntos donde una arquitectura concreta se puede verificar y medir en vez de solo estimarse a
 mano — el resto (ej1, ej2, ej6) son documentos de diseño puro, sin nada que sintetizar.
 
-Todo el trabajo de verificación (scripts de recomputación independiente, testbenches cruzados
-ej3-vs-ej4, contraste contra el libro de texto de la materia y otras fuentes externas) quedó
-documentado en `ref/review-plan.md` — no es parte de los informes en sí, pero es la razón por
-la que los números de estos seis documentos se pueden dar por confiables y no solo "razonados".
+Cada informe cierra con dos secciones de verificación: una de recomputación independiente
+(scripts que rehacen las cuentas, testbenches cruzados ej3-vs-ej4) y una de **contraste con
+fuentes externas** (el libro de texto de la materia — Parhi — y otras referencias, no solo
+`ref/Modulo_6.pptx`). Son la razón por la que los números de estos seis documentos se pueden
+dar por confiables y no solo "razonados".
 
 ## Conclusiones
 
@@ -81,7 +82,7 @@ la única que baja el IPB de un único canal sin trucos adicionales — y se pud
 algebraicamente con aritmética exacta, no solo argumentar.
 
 **6. Verificar en vez de asumir encontró errores reales, dos veces.** La revisión de este
-módulo (`ref/review-plan.md`) no fue una formalidad: ampliar la cobertura de un testbench de
+módulo no fue una formalidad: ampliar la cobertura de un testbench de
 ej4 encontró un bug real en el propio testbench (una muestra fantasma por un handshake mal
 armado), y contrastar contra el libro de texto encontró un error real de redacción en la
 sección de C-Slow de ej6 (no un matiz — una afirmación que decía "inválido sin streams" cuando

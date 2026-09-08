@@ -140,3 +140,34 @@ golden model, nunca uno contra el otro. `ej5_ppa/tb_cross_check.sv` cierra ese h
 propio ritmo — start/done vs. streaming) y compara las dos salidas elemento a elemento.
 Resultado: **100/100 coinciden exactamente** (`ej5_ppa/run_cross.sh`) — no solo el álgebra dice
 que son el mismo filtro, la simulación también.
+
+## Contraste con fuentes externas
+
+Fuente primaria: Parhi, *VLSI Digital Signal Processing Systems*
+(`ref/pahri-slides/chap4.pdf`, 12 páginas, leído completo — el capítulo de retiming).
+
+1. **Retiming preserva la función y no cambia registros por ciclo** (p.2-4, citas exactas):
+   *"Retiming: Moving around existing delays. Does not alter the latency of the system.
+   Reduces the critical path"* y *"Retiming does not change the number of delays in a cycle"*.
+   Confirma que mover el Cut-set B con el teorema de transferencia nodal no cambia lo que
+   calcula el filtro.
+2. **Los dos objetivos del retiming son los de este ejercicio** (p.4): *"Retiming is done to
+   meet the following: Clock period minimization, Register minimization"* — es literalmente la
+   estructura de la sección "Retiming: la misma fmax con menos etapas" (primero baja el
+   crítico con Cut-set A+B, después retira el Cut-set B redundante sin perder el fmax ganado).
+3. **Folding es capítulo aparte** (p.12): *"Retiming for Folding (Chapter 6)"* — re-confirma
+   que folding no está en chap2/chap4.
+4. **"Feed-forward cutset" con ese nombre exacto no aparece**: lo que sí está (p.2) es
+   *"Cutset Retiming"* en general y la fórmula por nodo `ω' = ω + r(V) − r(U)` — mismo concepto
+   de fondo, pero sin el requisito explícito "todas las aristas en la misma dirección" que sí
+   está en `ref/Modulo_6.pptx` (slide 19). Esa parte viene de la síntesis del profesor, no la
+   puedo confirmar contra Parhi.
+
+**Hallazgo colateral** (p.8-9, K-slow / 2-slow): reemplazar cada registro por `k` registros es
+válido y correcto **incluso con 1 solo stream** — no requiere streams independientes para ser
+correcto, solo para aprovechar el hardware al 100% (*"Hardware Utilization = 50%"* con 1
+stream). Aplica directo a ej6.
+
+**Conclusión**: 3 de 4 afirmaciones confirmadas contra el texto primario completo; la cuarta
+("feed-forward" específicamente) viene de las slides de la clase, no es incorrecta pero no
+tiene respaldo directo en este capítulo.

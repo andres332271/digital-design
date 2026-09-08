@@ -72,3 +72,27 @@ que impone la FSM.
 En cualquier caso, el patrón es el de **folding** (slide 39 de la presentación): throughput cae
 a ~1/6 respecto del ASAP ideal (1/3) a cambio de área mínima (1 mult + 1 add en vez de 4+2) —
 exactamente el trade-off que el ej5 va a tabular junto con la versión pipeline del ej4.
+
+## Contraste con fuentes externas
+
+Fuente: [Folding (DSP implementation) — Wikipedia](https://en.wikipedia.org/wiki/Folding_(DSP_implementation)),
+leída directo. El folding tiene su propio capítulo en Parhi que **no** está en
+`ref/pahri-slides/` (solo se agregaron `chap2.pdf` y `chap4.pdf`), así que el contraste va
+contra la referencia más accesible del tema.
+
+1. **Definición de folding**: *"Folding transforms an operation from a unit-time processing to
+   N unit-times processing where N is called folding factor"*. Es exactamente lo que hace
+   `fir_iter.sv`: 4 mult + 3 add del DFG de ej1 mapeados a 1 mult + 1 add reutilizados en
+   `N=4` ciclos — el *folding factor* del informe es literalmente el `N` de la definición.
+2. **Reducción de hardware con costo en muxes**: *"The functional block, adder, is therefore
+   reduced […] folding needs additional multiplexer for switching different operation paths.
+   Hence, the number of switching elements would also be increased"*. Coincide con el diseño
+   real: baja de 4+3 a 1+1 pero agrega el mux `taps[idx]` y la FSM `control_fsm.sv`.
+3. **Caída de throughput**: el ejemplo de Wikipedia pasa de "cada ciclo" a "cada `2l` ciclos"
+   tras foldear — mismo sentido (no la misma proporción) que los 6 ciclos/muestra medidos acá
+   contra el ideal ASAP de 3.
+
+**Conclusión**: el concepto y la mecánica (folding factor, muxes, FSM, throughput a la baja)
+coinciden con la fuente externa. Los números exactos de ciclos son específicos de *este* DFG —
+no algo que un artículo general confirme número por número; esa aritmética ya se validó con
+scripts y testbench.

@@ -75,3 +75,33 @@ Camino más largo: `m_i → a1|a2 → a3`, es decir **1 mult + 2 add = 4 tu**. N
 3 sumadores porque el árbol evita la cadena de 3 adds. Este es el número que ej4 va a intentar
 bajar con pipelining, y el que ej2 va a mostrar que tiene movilidad 0 en `a3` (siempre el
 último en poder ejecutar).
+
+## Contraste con fuentes externas
+
+Las cuatro afirmaciones de diseño de este informe (registros fuera del cómputo aritmético,
+camino crítico = camino libre de delays más largo, aristas RAW, árbol mejor que cadena) se
+contrastaron contra material externo, no solo contra `ref/Modulo_6.pptx`:
+
+1. **DFG (nodos / aristas / delays)** — Parhi, *VLSI Digital Signal Processing Systems*
+   (`ref/pahri-slides/chap2.pdf`, p.8, leído completo): *"nodes represent computations […] the
+   directed edges represent data paths […] each edge has a nonnegative number of delays
+   associated with it"*. Confirma la definición usada acá. **Matiz**: en Parhi el delay es un
+   número sobre la *arista*, no un nodo aparte; el diagrama Mermaid de arriba crea un nodo con
+   nombre por cada `x[n-k]` retardado — es una convención de dibujo pedagógica (la misma de los
+   ejemplos FIR de la presentación del módulo), no el formalismo estricto del libro.
+2. **Camino crítico** — `chap2.pdf` p.15, cita textual: *"Critical path of a DFG: the path with
+   the longest computation time among all paths that contain zero delays"* / *"Clock period is
+   lower bounded by the critical path computation time"*. Coincide palabra por palabra con el
+   cálculo de arriba (1 mult + 2 add, sin ningún registro en el medio).
+3. **RAW / WAR / WAW** — `chap2.pdf` **no usa esta terminología**: habla de *precedence
+   constraints* intra/inter-iteración (aristas con 0 / ≥1 delays). RAW/WAR/WAW es vocabulario de
+   arquitectura de computadoras que `ref/notas-de-clase.md` importa como complemento; se
+   contrastó contra fuentes de arquitectura/HLS (RAW = *true dependency*, WAR = *anti
+   dependency* resuelta con renombrado), no contra Parhi.
+4. **Árbol vs. cadena** — no está en `chap2.pdf` ni `chap4.pdf` (es razonamiento general de
+   *adder trees*). Respaldado por literatura de sumadores en árbol: *"a balanced tree structure
+   can produce shorter schedules compared to left-associative trees"*.
+
+**Conclusión**: 2 de 4 (DFG, camino crítico) confirmadas contra el texto primario completo de
+Parhi; las otras 2 se apoyan en fuentes secundarias porque, correctamente, no son temas de esos
+dos capítulos.
