@@ -1,0 +1,12 @@
+# Mapeo a celdas estandar sky130hd (flujo generico, no XC7): sintesis
+# tech-independent + dfflibmap + abc -liberty, igual que la diapositiva 51 de
+# Modulo_7.pptx. Sin placement/routing ni timing sign-off (eso es OpenSTA).
+#
+# Ruta del .lib resuelta via volare (PDK cache local); si volare actualiza la
+# version, volver a resolverla con:
+#   find ~/.volare -path "*sky130B*sky130_fd_sc_hd*tt_025C_1v80.lib"
+read_verilog -sv fir_pipeline_cadena.sv
+synth -top fir_pipeline_cadena
+dfflibmap -liberty /home/andres/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130B/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty /home/andres/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130B/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+stat -liberty /home/andres/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130B/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
