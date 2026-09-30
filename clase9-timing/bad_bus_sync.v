@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 // Ejemplo incorrecto para comparar con enable_sync.
 // Sincronizar cada bit por separado no garantiza una palabra coherente.
 // La simulacion RTL normal no reproduce por si sola skew ni metaestabilidad.

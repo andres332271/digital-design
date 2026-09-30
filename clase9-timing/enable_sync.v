@@ -1,4 +1,6 @@
-// Ejercicio 2: completar los TODO sin cambiar la interfaz del modulo.
+`timescale 1ns/1ps
+
+// Ejercicio 2: sincronizacion de valid con bus de datos estable.
 // Los dos clocks son independientes: clkA pertenece al emisor y clkB al receptor.
 
 module enable_sync #(
@@ -19,12 +21,13 @@ module enable_sync #(
     reg vs2_anterior;
 
     // Dominio clkA: guardar el bus mientras se anuncia la transferencia.
+    // El emisor debe mantener data_in estable durante valid_in y no comenzar
+    // otra transferencia hasta que el receptor haya tenido tiempo de verla.
     always @(posedge clkA or negedge rst_n) begin
         if (!rst_n) begin
             data_hold <= {WIDTH{1'b0}};
-        end else begin
-            // TODO 1: guardar data_in en data_hold cuando valid_in = 1.
-        end
+        end else if (valid_in)
+            data_hold <= data_in;
     end
 
     // Dominio clkB: sincronizar valid_in y recibir el dato.
@@ -36,11 +39,15 @@ module enable_sync #(
             data_out     <= {WIDTH{1'b0}};
             data_valid   <= 1'b0;
         end else begin
-            // TODO 2: implementar vs1 <= valid_in; y vs2 <= vs1;.
-            // TODO 3: recordar el valor previo de vs2 en vs2_anterior.
-            // TODO 4: generar data_valid durante un solo ciclo de clkB
-            //         al detectar el flanco ascendente de vs2.
-            // TODO 5: en ese mismo evento, copiar data_hold a data_out.
+            vs1          <= valid_in;
+            vs2          <= vs1;
+            vs2_anterior <= vs2;
+
+            // En este flanco se leen los valores anteriores de vs2 y
+            // vs2_anterior. Por eso el evento aparece una sola vez.
+            data_valid <= vs2 && !vs2_anterior;
+            if (vs2 && !vs2_anterior)
+                data_out <= data_hold;
         end
     end
 

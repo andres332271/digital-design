@@ -1,10 +1,10 @@
 # Modulo 9 — Ejercicio 2: Enable Synchronization
 
-Estos archivos son una **reconstruccion para practicar** basada en la diapositiva 71 de `Modulo_9.pptx`; no son los archivos originales del curso.
+Estos archivos son una **reconstruccion para practicar** basada en la diapositiva 71 de `Modulo_9.pptx`; no son los archivos originales del curso. `enable_sync.v` ya contiene la solucion completa.
 
 ## Consigna
 
-Completar los cinco `TODO` de `enable_sync.v` para transferir una palabra desde `clkA` (125 MHz) hacia `clkB` (38 MHz):
+Transferir una palabra desde `clkA` (125 MHz) hacia `clkB` (38 MHz):
 
 - Guardar el dato en `data_hold` en el dominio `clkA`.
 - Sincronizar **solo `valid_in`** mediante `vs1` y `vs2`, ambos con `clkB`.
@@ -14,10 +14,12 @@ El testbench mantiene `data_in` y `valid_in` el tiempo suficiente y separa las t
 
 ## Archivos
 
-- `enable_sync.v`: plantilla que debes completar.
+- `enable_sync.v`: implementacion completa.
 - `tb_enable_sync.v`: testbench autocorrector de 200 transferencias.
-- `bad_bus_sync.v`: ejemplo conceptual incorrecto, para comparar; el testbench principal no lo usa.
-- `run.sh`: compila y ejecuta la simulacion con Icarus Verilog.
+- `bad_bus_sync.v`: ejemplo conceptual incorrecto, para comparar.
+- `tb_bad_bus_sync.v`: demuestra con skew que el ejemplo incorrecto puede entregar un valor intermedio.
+- `run.sh`: compila y ejecuta ambas simulaciones con Icarus Verilog.
+- `Resultados_Ejercicio_2.md`: resultados y limites de las simulaciones.
 
 ## Como probar
 
@@ -27,6 +29,6 @@ Con `iverilog` y `vvp` instalados:
 ./run.sh
 ```
 
-Antes de completar los `TODO`, es normal que el testbench falle. Cuando funcione, debe terminar con `PASS 200/200`. El testbench comprueba el valor, el orden y que `data_valid` dure un ciclo.
+La primera simulacion debe terminar con `PASS 200/200`. Comprueba el valor, el orden y que `data_valid` dure un ciclo. La segunda demuestra que `bad_bus_sync` puede entregar `0x1F` durante una transicion `0x00` a `0xFF` con skew entre bits.
 
 **Nota:** la diapositiva muestra `data_valid <= vs2` en un fragmento ilustrativo, pero tambien pide un pulso de un ciclo. Esta plantilla sigue el requisito del pulso y usa `vs2_anterior` para detectar el flanco. No se incluye el modelo estadistico de metaestabilidad `TAU_DEMO` mencionado en la diapositiva; este paquete se centra en el protocolo y la comprobacion funcional.
